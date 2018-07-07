@@ -6,6 +6,6 @@ import retrofit2.http.GET;
 public interface ZomatoApi {
 
 
-    @GET("search")
+    @GET("/api/v2.1/search")
     Single<SearchResponse> searchRestaurants();
 }
