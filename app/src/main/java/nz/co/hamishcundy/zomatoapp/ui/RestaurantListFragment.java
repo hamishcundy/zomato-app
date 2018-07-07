@@ -102,7 +102,7 @@ public class RestaurantListFragment extends Fragment {
         return true;
     }
 
-    private void showRestaurants(List<Restaurant> restaurants) {
+    private void showRestaurants(List<SearchResponse.RestaurantWrapper> restaurants) {
         restaurantsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
         restaurantsRecycler.setAdapter(new RestaurantAdapter(restaurants));
 
@@ -126,9 +126,9 @@ public class RestaurantListFragment extends Fragment {
 
     public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantViewHolder> {
 
-        private final List<Restaurant> restaurantList;
+        private final List<SearchResponse.RestaurantWrapper> restaurantList;
 
-        public RestaurantAdapter(List<Restaurant> restaurantList){
+        public RestaurantAdapter(List<SearchResponse.RestaurantWrapper> restaurantList){
             this.restaurantList = restaurantList;
         }
 
@@ -141,7 +141,7 @@ public class RestaurantListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull RestaurantViewHolder holder, int position) {
-            holder.bind(restaurantList.get(position));
+            holder.bind(restaurantList.get(position).restaurant);
         }
 
         @Override

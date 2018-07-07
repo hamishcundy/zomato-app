@@ -7,5 +7,10 @@ import java.util.List;
 public class SearchResponse {
 
     @SerializedName("restaurants")
-    public List<Restaurant> restaurants;
+    public List<RestaurantWrapper> restaurants;
+
+    public class RestaurantWrapper {
+        @SerializedName("restaurant")
+        public Restaurant restaurant;
+    }
 }
