@@ -2,7 +2,13 @@ package nz.co.hamishcundy.zomatoapp.network;
 
 public class Restaurant {
 
-    String name;
+    public String name;
 
-    String featuredImage;
+    public String featuredImage;
+
+    public Location location;
+
+    public class Location{
+        public String address;
+    }
 }
