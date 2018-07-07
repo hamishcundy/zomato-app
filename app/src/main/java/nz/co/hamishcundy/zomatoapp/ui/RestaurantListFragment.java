@@ -4,7 +4,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,13 +14,20 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.SingleObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import nz.co.hamishcundy.zomatoapp.R;
 import nz.co.hamishcundy.zomatoapp.network.NetworkInterfaceProvider;
 import nz.co.hamishcundy.zomatoapp.network.Restaurant;
+import nz.co.hamishcundy.zomatoapp.network.SearchResponse;
 import nz.co.hamishcundy.zomatoapp.network.ZomatoApi;
 
 public class RestaurantListFragment extends Fragment {
@@ -31,6 +40,8 @@ public class RestaurantListFragment extends Fragment {
 
     @BindView(R.id.text_error)
     TextView errorLabel;
+
+    public static final int ABBOTSFORD_ENTITY_ID = 98284;
 
 
     private ZomatoApi zomatoApi;
@@ -47,6 +58,69 @@ public class RestaurantListFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_restaurant_list, container, false);
         ButterKnife.bind(this, rootView);
         return rootView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        loadRestaurants();
+
+    }
+
+    private void loadRestaurants(){
+        showLoadingIndicator();
+        if(deviceHasInternet()) {
+            //internet available, go to api
+            zomatoApi.searchRestaurants(ABBOTSFORD_ENTITY_ID, "subzone",null, null)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new SingleObserver<SearchResponse>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+
+                        }
+
+                        @Override
+                        public void onSuccess(SearchResponse searchResponse) {
+                            showRestaurants(searchResponse.restaurants);
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            e.printStackTrace();
+                            showNetworkError();
+                        }
+                    });
+        }else{//no internet, check cache
+
+        }
+    }
+
+
+
+    private boolean deviceHasInternet() {
+        return true;
+    }
+
+    private void showRestaurants(List<Restaurant> restaurants) {
+        restaurantsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
+        restaurantsRecycler.setAdapter(new RestaurantAdapter(restaurants));
+
+        loadingProgress.setVisibility(View.GONE);
+        errorLabel.setVisibility(View.GONE);
+        restaurantsRecycler.setVisibility(View.VISIBLE);
+    }
+
+    private void showLoadingIndicator() {
+        loadingProgress.setVisibility(View.VISIBLE);
+        errorLabel.setVisibility(View.GONE);
+        restaurantsRecycler.setVisibility(View.GONE);
+    }
+
+    private void showNetworkError() {
+        loadingProgress.setVisibility(View.GONE);
+        errorLabel.setVisibility(View.VISIBLE);
+        restaurantsRecycler.setVisibility(View.GONE);
     }
 
 
@@ -97,6 +171,8 @@ public class RestaurantListFragment extends Fragment {
         public void bind(Restaurant restaurant){
             nameLabel.setText(restaurant.name);
             addressLabel.setText(restaurant.location.address);
+
+            Glide.with(RestaurantListFragment.this).load(restaurant.featuredImage).into(photoImageview);
 
 
         }

@@ -1,17 +1,28 @@
 package nz.co.hamishcundy.zomatoapp.network;
 
+import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class NetworkInterfaceProvider {
 
     private static final String BASE_URL = "https://developers.zomato.com/";
-    private static final String API_KEY = "3a00ce3d287622b222f0601ed70dd4b9";
 
     public static ZomatoApi buildZomatoApi(){
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+        httpClient.addInterceptor(logging);
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .client(httpClient.build())
                 .build();
 
         return retrofit.create(ZomatoApi.class);
