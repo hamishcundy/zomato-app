@@ -2,4 +2,5 @@
     <string name="app_name">ZomatoApp</string>
     <string name="title_restaurants">Restaurants</string>
     <string name="title_favourites">Favourites</string>
+    <string name="network_error">Error loading restaurants</string>
 </resources>
