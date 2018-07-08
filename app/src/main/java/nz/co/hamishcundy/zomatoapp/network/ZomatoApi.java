@@ -1,6 +1,7 @@
 package nz.co.hamishcundy.zomatoapp.network;
 
 import io.reactivex.Single;
+import nz.co.hamishcundy.zomatoapp.network.model.SearchResponse;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.Query;

@@ -1,4 +1,4 @@
-package nz.co.hamishcundy.zomatoapp.network;
+package nz.co.hamishcundy.zomatoapp.network.model;
 
 import com.google.gson.annotations.SerializedName;
 

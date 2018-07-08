@@ -30,9 +30,9 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import nz.co.hamishcundy.zomatoapp.R;
 import nz.co.hamishcundy.zomatoapp.network.NetworkInterfaceProvider;
-import nz.co.hamishcundy.zomatoapp.network.RestaurantDetails;
-import nz.co.hamishcundy.zomatoapp.network.Restaurant;
-import nz.co.hamishcundy.zomatoapp.network.SearchResponse;
+import nz.co.hamishcundy.zomatoapp.network.model.RestaurantDetails;
+import nz.co.hamishcundy.zomatoapp.network.model.Restaurant;
+import nz.co.hamishcundy.zomatoapp.network.model.SearchResponse;
 import nz.co.hamishcundy.zomatoapp.network.ZomatoApi;
 
 public class RestaurantListFragment extends Fragment {
