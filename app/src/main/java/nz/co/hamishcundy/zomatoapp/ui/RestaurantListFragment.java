@@ -15,6 +15,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
 
 import java.util.List;
@@ -61,11 +62,11 @@ public class RestaurantListFragment extends Fragment {
         return rootView;
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        loadRestaurants();
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        loadRestaurants();
     }
 
     private void loadRestaurants(){
@@ -100,7 +101,7 @@ public class RestaurantListFragment extends Fragment {
 
 
     private boolean deviceHasInternet() {
-        return true;
+        return true;//TODO
     }
 
     private void showRestaurants(List<SearchResponse.RestaurantWrapper> restaurants) {
@@ -178,6 +179,7 @@ public class RestaurantListFragment extends Fragment {
 
             Glide.with(RestaurantListFragment.this).load(restaurant.featuredImage)
                     .apply(options)
+                    .transition(DrawableTransitionOptions.withCrossFade())
                     .into(photoImageview);
 
 
