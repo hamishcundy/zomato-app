@@ -4,16 +4,8 @@ import com.google.gson.annotations.SerializedName;
 
 public class Restaurant {
 
-    @SerializedName("name")
-    public String name;
+    @SerializedName("restaurant")
+    public RestaurantDetails restaurantDetails;
 
-    @SerializedName("featured_image")
-    public String featuredImage;
 
-    @SerializedName("location")
-    public Location location;
-
-    public static class Location{
-        public String address;
-    }
 }

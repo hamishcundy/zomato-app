@@ -8,7 +8,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +30,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import nz.co.hamishcundy.zomatoapp.R;
 import nz.co.hamishcundy.zomatoapp.network.NetworkInterfaceProvider;
+import nz.co.hamishcundy.zomatoapp.network.RestaurantDetails;
 import nz.co.hamishcundy.zomatoapp.network.Restaurant;
 import nz.co.hamishcundy.zomatoapp.network.SearchResponse;
 import nz.co.hamishcundy.zomatoapp.network.ZomatoApi;
@@ -97,7 +97,7 @@ public class RestaurantListFragment extends Fragment {
                         }
                     });
         }else{//no internet, check cache
-            List<SearchResponse.RestaurantWrapper> cached = fetchFromCache();
+            List<Restaurant> cached = fetchFromCache();
             if(cached != null && !cached.isEmpty()){//cache hit
                 showRestaurants(cached);
             }else{//cache miss
@@ -106,21 +106,23 @@ public class RestaurantListFragment extends Fragment {
         }
     }
 
-    private void cacheRestaurants(List<SearchResponse.RestaurantWrapper> restaurants) {
+    private void cacheRestaurants(List<Restaurant> restaurants) {
         //TODO
     }
 
-    private List<SearchResponse.RestaurantWrapper> fetchFromCache(){
+    private List<Restaurant> fetchFromCache(){
         return null;//TODO
     }
 
-
+    /**Note: this will only confirm the device is connected to a network, not whether there is access to the internet
+     *
+     */
     private boolean deviceHasInternet() {
         ConnectivityManager cm = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         return cm.getActiveNetworkInfo() != null;
     }
 
-    private void showRestaurants(List<SearchResponse.RestaurantWrapper> restaurants) {
+    private void showRestaurants(List<Restaurant> restaurants) {
         restaurantsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
         restaurantsRecycler.setAdapter(new RestaurantAdapter(restaurants));
 
@@ -144,9 +146,9 @@ public class RestaurantListFragment extends Fragment {
 
     public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantViewHolder> {
 
-        private final List<SearchResponse.RestaurantWrapper> restaurantList;
+        private final List<Restaurant> restaurantList;
 
-        public RestaurantAdapter(List<SearchResponse.RestaurantWrapper> restaurantList){
+        public RestaurantAdapter(List<Restaurant> restaurantList){
             this.restaurantList = restaurantList;
         }
 
@@ -159,7 +161,7 @@ public class RestaurantListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull RestaurantViewHolder holder, int position) {
-            holder.bind(restaurantList.get(position).restaurant);
+            holder.bind(restaurantList.get(position).restaurantDetails);
         }
 
         @Override
@@ -186,15 +188,15 @@ public class RestaurantListFragment extends Fragment {
             ButterKnife.bind(this, itemView);
         }
 
-        public void bind(Restaurant restaurant){
-            nameLabel.setText(restaurant.name);
-            addressLabel.setText(restaurant.location.address);
+        public void bind(RestaurantDetails restaurantDetails){
+            nameLabel.setText(restaurantDetails.name);
+            addressLabel.setText(restaurantDetails.location.address);
 
             RequestOptions options = new RequestOptions()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .centerCrop();
 
-            Glide.with(RestaurantListFragment.this).load(restaurant.featuredImage)
+            Glide.with(RestaurantListFragment.this).load(restaurantDetails.featuredImage)
                     .apply(options)
                     .transition(DrawableTransitionOptions.withCrossFade())
                     .into(photoImageview);
