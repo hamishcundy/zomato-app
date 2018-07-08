@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        switchFragment(R.id.navigation_restaurants);
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -42,20 +43,23 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.navigation_restaurants:
-                    fragment = new RestaurantListFragment();
-                    loadFragment(fragment);
-                    return true;
-                case R.id.navigation_favourites:
-                    fragment = new RestaurantFavouriteFragment();
-                    loadFragment(fragment);
-                    return true;
+            switchFragment(item.getItemId());
 
-            }
-            return false;
+            return true;
         }
     };
+
+    private void switchFragment(int itemId) {
+        switch (itemId) {
+            case R.id.navigation_restaurants:
+                fragment = new RestaurantListFragment();
+                loadFragment(fragment);
+            case R.id.navigation_favourites:
+                fragment = new RestaurantFavouriteFragment();
+                loadFragment(fragment);
+
+        }
+    }
 
     private void loadFragment(Fragment fragment) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
