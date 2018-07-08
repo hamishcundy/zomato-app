@@ -1,5 +1,7 @@
 package nz.co.hamishcundy.zomatoapp.ui;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -84,6 +86,7 @@ public class RestaurantListFragment extends Fragment {
 
                         @Override
                         public void onSuccess(SearchResponse searchResponse) {
+                            cacheRestaurants(searchResponse.restaurants);
                             showRestaurants(searchResponse.restaurants);
                         }
 
@@ -94,14 +97,27 @@ public class RestaurantListFragment extends Fragment {
                         }
                     });
         }else{//no internet, check cache
-
+            List<SearchResponse.RestaurantWrapper> cached = fetchFromCache();
+            if(cached != null && !cached.isEmpty()){//cache hit
+                showRestaurants(cached);
+            }else{//cache miss
+                showNetworkError();
+            }
         }
     }
 
+    private void cacheRestaurants(List<SearchResponse.RestaurantWrapper> restaurants) {
+        //TODO
+    }
+
+    private List<SearchResponse.RestaurantWrapper> fetchFromCache(){
+        return null;//TODO
+    }
 
 
     private boolean deviceHasInternet() {
-        return true;//TODO
+        ConnectivityManager cm = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        return cm.getActiveNetworkInfo() != null;
     }
 
     private void showRestaurants(List<SearchResponse.RestaurantWrapper> restaurants) {
