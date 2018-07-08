@@ -34,4 +34,17 @@
         android:textSize="10sp"
         android:textColor="@android:color/white"
         tools:text="456 High Street, Preston" />
+
+    <ToggleButton
+        android:id="@+id/button_favourite"
+        android:layout_width="32dp"
+        android:textOff=""
+        android:textOn=""
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_height="32dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:background="@android:drawable/btn_star"
+         />
 </RelativeLayout>

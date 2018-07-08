@@ -1,6 +1,7 @@
 package nz.co.hamishcundy.zomatoapp.domain;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 import nz.co.hamishcundy.zomatoapp.network.model.Restaurant;
 
 /**Domain object to represent a restaurant (easier for caching purposes)
@@ -9,9 +10,12 @@ import nz.co.hamishcundy.zomatoapp.network.model.Restaurant;
  */
 public class RestaurantModel extends RealmObject{
 
+    @PrimaryKey
     private String name;
+
     private String address;
     private String imageUrl;
+    private boolean favourite;
 
     public RestaurantModel(){}
 
@@ -46,5 +50,11 @@ public class RestaurantModel extends RealmObject{
     }
 
 
+    public boolean isFavourite() {
+        return favourite;
+    }
 
+    public void setFavourite(boolean favourite) {
+        this.favourite = favourite;
+    }
 }
