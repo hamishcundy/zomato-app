@@ -43,7 +43,6 @@ public class RestaurantListFragment extends Fragment {
     @BindView(R.id.text_error)
     TextView errorLabel;
 
-    public static final int ABBOTSFORD_ENTITY_ID = 98284;
 
 
     private ZomatoApi zomatoApi;
@@ -73,7 +72,7 @@ public class RestaurantListFragment extends Fragment {
         showLoadingIndicator();
         if(deviceHasInternet()) {
             //internet available, go to api
-            zomatoApi.searchRestaurants(ABBOTSFORD_ENTITY_ID, "subzone",null, null)
+            zomatoApi.searchRestaurants("Abbotsford",10,"rating", null)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new SingleObserver<SearchResponse>() {

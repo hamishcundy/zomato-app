@@ -10,8 +10,8 @@ public interface ZomatoApi {
 
     @Headers("user-key: 3a00ce3d287622b222f0601ed70dd4b9")
     @GET("api/v2.1/search")
-    Single<SearchResponse> searchRestaurants(@Query("entity_id") Integer entityId,
-                                             @Query("entity_type") String entityType,
+    Single<SearchResponse> searchRestaurants(@Query("q") String query,
+                                             @Query("count") Integer count,
                                              @Query("sort") String sort,
                                              @Query("order") String order);
 }
