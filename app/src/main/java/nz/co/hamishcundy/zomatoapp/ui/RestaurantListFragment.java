@@ -20,15 +20,20 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Single;
 import io.reactivex.SingleObserver;
+import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import nz.co.hamishcundy.zomatoapp.R;
+import nz.co.hamishcundy.zomatoapp.domain.RestaurantModel;
 import nz.co.hamishcundy.zomatoapp.network.NetworkInterfaceProvider;
 import nz.co.hamishcundy.zomatoapp.network.model.RestaurantDetails;
 import nz.co.hamishcundy.zomatoapp.network.model.Restaurant;
@@ -76,18 +81,28 @@ public class RestaurantListFragment extends Fragment {
         if(deviceHasInternet()) {
             //internet available, go to api
             zomatoApi.searchRestaurants("Abbotsford",10,"rating", null)
+                    .flatMap(new Function<SearchResponse, SingleSource<List<RestaurantModel>>>() {
+                        @Override
+                        public SingleSource<List<RestaurantModel>> apply(SearchResponse searchResponse) throws Exception {
+                            List<RestaurantModel> restaurants = new ArrayList<>();
+                            for(Restaurant restaurant:searchResponse.restaurants){
+                                restaurants.add(new RestaurantModel(restaurant));
+                            }
+                            return Single.just(restaurants);
+                        }
+                    })
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new SingleObserver<SearchResponse>() {
+                    .subscribe(new SingleObserver<List<RestaurantModel>>() {
                         @Override
                         public void onSubscribe(Disposable d) {
 
                         }
 
                         @Override
-                        public void onSuccess(SearchResponse searchResponse) {
-                            cacheRestaurants(searchResponse.restaurants);
-                            showRestaurants(searchResponse.restaurants);
+                        public void onSuccess(List<RestaurantModel> restaurants) {
+                            cacheRestaurants(restaurants);
+                            showRestaurants(restaurants);
                         }
 
                         @Override
@@ -97,7 +112,7 @@ public class RestaurantListFragment extends Fragment {
                         }
                     });
         }else{//no internet, check cache
-            List<Restaurant> cached = fetchFromCache();
+            List<RestaurantModel> cached = fetchFromCache();
             if(cached != null && !cached.isEmpty()){//cache hit
                 showRestaurants(cached);
             }else{//cache miss
@@ -106,11 +121,11 @@ public class RestaurantListFragment extends Fragment {
         }
     }
 
-    private void cacheRestaurants(List<Restaurant> restaurants) {
+    private void cacheRestaurants(List<RestaurantModel> restaurants) {
         //TODO
     }
 
-    private List<Restaurant> fetchFromCache(){
+    private List<RestaurantModel> fetchFromCache(){
         return null;//TODO
     }
 
@@ -122,7 +137,7 @@ public class RestaurantListFragment extends Fragment {
         return cm.getActiveNetworkInfo() != null;
     }
 
-    private void showRestaurants(List<Restaurant> restaurants) {
+    private void showRestaurants(List<RestaurantModel> restaurants) {
         restaurantsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
         restaurantsRecycler.setAdapter(new RestaurantAdapter(restaurants));
 
@@ -146,9 +161,9 @@ public class RestaurantListFragment extends Fragment {
 
     public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantViewHolder> {
 
-        private final List<Restaurant> restaurantList;
+        private final List<RestaurantModel> restaurantList;
 
-        public RestaurantAdapter(List<Restaurant> restaurantList){
+        public RestaurantAdapter(List<RestaurantModel> restaurantList){
             this.restaurantList = restaurantList;
         }
 
@@ -161,7 +176,7 @@ public class RestaurantListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull RestaurantViewHolder holder, int position) {
-            holder.bind(restaurantList.get(position).restaurantDetails);
+            holder.bind(restaurantList.get(position));
         }
 
         @Override
@@ -188,15 +203,18 @@ public class RestaurantListFragment extends Fragment {
             ButterKnife.bind(this, itemView);
         }
 
-        public void bind(RestaurantDetails restaurantDetails){
-            nameLabel.setText(restaurantDetails.name);
-            addressLabel.setText(restaurantDetails.location.address);
+        public void bind(RestaurantModel restaurantDetails){
+            //Set label text
+            nameLabel.setText(restaurantDetails.getName());
+            addressLabel.setText(restaurantDetails.getAddress());
 
+            //Image display setup
             RequestOptions options = new RequestOptions()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .centerCrop();
 
-            Glide.with(RestaurantListFragment.this).load(restaurantDetails.featuredImage)
+            //Load image
+            Glide.with(RestaurantListFragment.this).load(restaurantDetails.getImageUrl())
                     .apply(options)
                     .transition(DrawableTransitionOptions.withCrossFade())
                     .into(photoImageview);
