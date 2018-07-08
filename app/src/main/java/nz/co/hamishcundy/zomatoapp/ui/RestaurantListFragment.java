@@ -59,6 +59,7 @@ public class RestaurantListFragment extends Fragment {
 
     private ZomatoApi zomatoApi;
     Realm realm;
+    private Disposable disposable;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -90,6 +91,7 @@ public class RestaurantListFragment extends Fragment {
                     .flatMap(new Function<SearchResponse, SingleSource<List<RestaurantModel>>>() {
                         @Override
                         public SingleSource<List<RestaurantModel>> apply(SearchResponse searchResponse) throws Exception {
+                            //convert to domain objects
                             List<RestaurantModel> restaurants = new ArrayList<>();
                             for(Restaurant restaurant:searchResponse.restaurants){
                                 restaurants.add(new RestaurantModel(restaurant));
@@ -102,7 +104,7 @@ public class RestaurantListFragment extends Fragment {
                     .subscribe(new SingleObserver<List<RestaurantModel>>() {
                         @Override
                         public void onSubscribe(Disposable d) {
-
+                            disposable = d;
                         }
 
                         @Override
@@ -130,12 +132,20 @@ public class RestaurantListFragment extends Fragment {
         }
     }
 
+    /** Cache restaurants in Realm
+     *
+     * @param restaurants List of restaurants to cache
+     */
     private void cacheRestaurants(List<RestaurantModel> restaurants) {
         realm.beginTransaction();
         realm.copyToRealmOrUpdate(restaurants);
         realm.commitTransaction();
     }
 
+    /**Checks whether restaurants are available from the cache
+     *
+     * @return true if cache hit, false if miss
+     */
     private boolean availableFromCache(){
         RealmResults<RestaurantModel> queryResults = getRestaurantsToDisplay();
         if(queryResults.size() == 0){
@@ -143,6 +153,14 @@ public class RestaurantListFragment extends Fragment {
         }
         return true;
 
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        //prevent memory leaks
+        disposable.dispose();
     }
 
     /**Note: this will only confirm the device is connected to a network, not whether there is access to the internet
@@ -158,7 +176,7 @@ public class RestaurantListFragment extends Fragment {
 
     }
 
-     void showRestaurantList() {
+    void showRestaurantList() {
         restaurantsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
         restaurantsRecycler.setAdapter(new RestaurantRealmAdapter(getRestaurantsToDisplay(), this));
 

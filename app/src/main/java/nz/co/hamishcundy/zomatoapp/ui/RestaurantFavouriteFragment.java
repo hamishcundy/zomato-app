@@ -15,11 +15,14 @@ import nz.co.hamishcundy.zomatoapp.domain.RestaurantModel;
 
 public class RestaurantFavouriteFragment extends RestaurantListFragment {
 
+    //Override RestaurantsListFragment implementation and display straight from cache
     @Override
     void loadRestaurants() {
+
         showRestaurantList();
     }
 
+    //Override RestaurantListFragments implementation to only show favourited restaurants
     @Override
     public RealmResults<RestaurantModel> getRestaurantsToDisplay() {
         return realm.where(RestaurantModel.class).equalTo("favourite", true).findAll();
