@@ -230,7 +230,9 @@ public class RestaurantListFragment extends Fragment {
             favouriteButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
                     realm.beginTransaction();
+                    restaurantDetails.setFavourite(b);
                     realm.copyToRealmOrUpdate(restaurantDetails);
                     realm.commitTransaction();
                 }
