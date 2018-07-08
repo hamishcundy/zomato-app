@@ -58,7 +58,7 @@ public class RestaurantListFragment extends Fragment {
 
 
     private ZomatoApi zomatoApi;
-    private Realm realm;
+    Realm realm;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -82,7 +82,7 @@ public class RestaurantListFragment extends Fragment {
         loadRestaurants();
     }
 
-    private void loadRestaurants(){
+    void loadRestaurants(){
         showLoadingIndicator();
         if(deviceHasInternet()) {
             //internet available, go to api
@@ -108,7 +108,7 @@ public class RestaurantListFragment extends Fragment {
                         @Override
                         public void onSuccess(List<RestaurantModel> restaurants) {
                             cacheRestaurants(restaurants);
-                            showRestaurants(restaurants);
+                            showRestaurantList(restaurants);
                         }
 
                         @Override
@@ -120,7 +120,7 @@ public class RestaurantListFragment extends Fragment {
         }else{//no internet, check cache
             List<RestaurantModel> cached = fetchFromCache();
             if(cached != null && !cached.isEmpty()){//cache hit
-                showRestaurants(cached);
+                showRestaurantList(cached);
             }else{//cache miss
                 showNetworkError();
             }
@@ -149,10 +149,14 @@ public class RestaurantListFragment extends Fragment {
         return cm.getActiveNetworkInfo() != null;
     }
 
-    private void showRestaurants(List<RestaurantModel> restaurants) {
+    private void showRestaurantList(List<RestaurantModel> restaurants) {
         restaurantsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
         restaurantsRecycler.setAdapter(new RestaurantAdapter(restaurants));
 
+        showRestaurants();
+    }
+
+    void showRestaurants(){
         loadingProgress.setVisibility(View.GONE);
         errorLabel.setVisibility(View.GONE);
         restaurantsRecycler.setVisibility(View.VISIBLE);
