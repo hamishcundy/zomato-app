@@ -107,8 +107,12 @@ public class RestaurantListFragment extends Fragment {
 
                         @Override
                         public void onSuccess(List<RestaurantModel> restaurants) {
-                            cacheRestaurants(restaurants);
-                            showRestaurantList(restaurants);
+                            //only write to cache if not already present.
+                            // This prevents favourites being overriden with each network call
+                            if(!availableFromCache()) {
+                                cacheRestaurants(restaurants);
+                            }
+                            showRestaurantList();
                         }
 
                         @Override
@@ -118,9 +122,8 @@ public class RestaurantListFragment extends Fragment {
                         }
                     });
         }else{//no internet, check cache
-            List<RestaurantModel> cached = fetchFromCache();
-            if(cached != null && !cached.isEmpty()){//cache hit
-                showRestaurantList(cached);
+            if(availableFromCache()){//cache hit
+                showRestaurantList();
             }else{//cache miss
                 showNetworkError();
             }
@@ -133,12 +136,13 @@ public class RestaurantListFragment extends Fragment {
         realm.commitTransaction();
     }
 
-    private List<RestaurantModel> fetchFromCache(){
-        RealmResults<RestaurantModel> queryResults = realm.where(RestaurantModel.class).findAll();
+    private boolean availableFromCache(){
+        RealmResults<RestaurantModel> queryResults = getRestaurantsToDisplay();
         if(queryResults.size() == 0){
-            return null;
+            return false;
         }
-        return realm.copyFromRealm(queryResults);
+        return true;
+
     }
 
     /**Note: this will only confirm the device is connected to a network, not whether there is access to the internet
@@ -149,14 +153,19 @@ public class RestaurantListFragment extends Fragment {
         return cm.getActiveNetworkInfo() != null;
     }
 
-    private void showRestaurantList(List<RestaurantModel> restaurants) {
+    public RealmResults<RestaurantModel> getRestaurantsToDisplay(){
+        return realm.where(RestaurantModel.class).findAll();
+
+    }
+
+     void showRestaurantList() {
         restaurantsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
-        restaurantsRecycler.setAdapter(new RestaurantAdapter(restaurants));
+        restaurantsRecycler.setAdapter(new RestaurantRealmAdapter(getRestaurantsToDisplay(), this));
 
         showRestaurants();
     }
 
-    void showRestaurants(){
+    private void showRestaurants(){
         loadingProgress.setVisibility(View.GONE);
         errorLabel.setVisibility(View.GONE);
         restaurantsRecycler.setVisibility(View.VISIBLE);
@@ -175,82 +184,7 @@ public class RestaurantListFragment extends Fragment {
     }
 
 
-    public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantViewHolder> {
-
-        private final List<RestaurantModel> restaurantList;
-
-        public RestaurantAdapter(List<RestaurantModel> restaurantList){
-            this.restaurantList = restaurantList;
-        }
-
-        @NonNull
-        @Override
-        public RestaurantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.restaurant_list_item, parent, false);
-            return new RestaurantViewHolder(v);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull RestaurantViewHolder holder, int position) {
-            holder.bind(restaurantList.get(position));
-        }
-
-        @Override
-        public int getItemCount() {
-            return restaurantList.size();
-        }
-    }
 
 
 
-    public class RestaurantViewHolder extends RecyclerView.ViewHolder {
-
-        @BindView(R.id.text_restaurant_name)
-        TextView nameLabel;
-
-        @BindView(R.id.text_restaurant_address)
-        TextView addressLabel;
-
-        @BindView(R.id.image_restaurant_photo)
-        ImageView photoImageview;
-
-        @BindView(R.id.button_favourite)
-        ToggleButton favouriteButton;
-
-        public RestaurantViewHolder(View itemView) {
-            super(itemView);
-            ButterKnife.bind(this, itemView);
-        }
-
-        public void bind(final RestaurantModel restaurantDetails){
-            //Set label text
-            nameLabel.setText(restaurantDetails.getName());
-            addressLabel.setText(restaurantDetails.getAddress());
-            favouriteButton.setChecked(restaurantDetails.isFavourite());
-            favouriteButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-
-                    realm.beginTransaction();
-                    restaurantDetails.setFavourite(b);
-                    realm.copyToRealmOrUpdate(restaurantDetails);
-                    realm.commitTransaction();
-                }
-            });
-
-
-            //Image display setup
-            RequestOptions options = new RequestOptions()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .centerCrop();
-
-            //Load image
-            Glide.with(RestaurantListFragment.this).load(restaurantDetails.getImageUrl())
-                    .apply(options)
-                    .transition(DrawableTransitionOptions.withCrossFade())
-                    .into(photoImageview);
-
-
-        }
-    }
 }

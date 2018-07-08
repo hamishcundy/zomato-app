@@ -17,34 +17,12 @@ public class RestaurantFavouriteFragment extends RestaurantListFragment {
 
     @Override
     void loadRestaurants() {
-        RealmResults<RestaurantModel> results = realm.where(RestaurantModel.class).equalTo("favourite", true).findAll();
-
-        showFavouriteRestaurantList(results);
+        showRestaurantList();
     }
 
-    private void showFavouriteRestaurantList(RealmResults<RestaurantModel> results) {
-        restaurantsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
-        restaurantsRecycler.setAdapter(new FavouriteRestaurantsAdapter(results));
+    @Override
+    public RealmResults<RestaurantModel> getRestaurantsToDisplay() {
+        return realm.where(RestaurantModel.class).equalTo("favourite", true).findAll();
 
-        showRestaurants();
-    }
-
-    public class FavouriteRestaurantsAdapter extends RealmRecyclerViewAdapter<RestaurantModel, RestaurantViewHolder> {
-
-        public FavouriteRestaurantsAdapter(OrderedRealmCollection<RestaurantModel> data){
-            super(data, true);
-        }
-
-        @NonNull
-        @Override
-        public RestaurantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.restaurant_list_item, parent, false);
-            return new RestaurantViewHolder(v);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull RestaurantViewHolder holder, int position) {
-            holder.bind(getItem(position));
-        }
     }
 }
