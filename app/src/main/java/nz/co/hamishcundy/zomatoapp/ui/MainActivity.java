@@ -62,9 +62,11 @@ public class MainActivity extends AppCompatActivity {
             case R.id.navigation_restaurants:
                 fragment = new RestaurantListFragment();
                 loadFragment(fragment);
+                break;
             case R.id.navigation_favourites:
                 fragment = new RestaurantFavouriteFragment();
                 loadFragment(fragment);
+                break;
 
         }
     }
