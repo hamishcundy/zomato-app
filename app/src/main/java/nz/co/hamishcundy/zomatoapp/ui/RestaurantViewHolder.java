@@ -47,14 +47,16 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
         nameLabel.setText(restaurantDetails.getName());
         addressLabel.setText(restaurantDetails.getAddress());
 
+        //Remove listener before setting, in case we are reusing
         favouriteButton.setOnCheckedChangeListener(null);
 
         favouriteButton.setChecked(restaurantDetails.isFavourite());
 
+        //set listener after initial state set
         favouriteButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(item.isFavourite() != b) {
+                if(item.isFavourite() != b) {//don't update if out of sync
                     Realm realm = Realm.getDefaultInstance();
                     realm.beginTransaction();
                     item.setFavourite(b);
