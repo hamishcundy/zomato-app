@@ -19,6 +19,8 @@
         android:layout_alignParentStart="true"
         android:textSize="16sp"
         android:textColor="@android:color/white"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="8dp"
         tools:text="Dexter" />
 
     <TextView
@@ -27,6 +29,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
         android:textSize="10sp"
         android:textColor="@android:color/white"
         tools:text="456 High Street, Preston" />
