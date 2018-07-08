@@ -32,6 +32,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
+import io.realm.Realm;
+import io.realm.RealmResults;
 import nz.co.hamishcundy.zomatoapp.R;
 import nz.co.hamishcundy.zomatoapp.domain.RestaurantModel;
 import nz.co.hamishcundy.zomatoapp.network.NetworkInterfaceProvider;
@@ -54,11 +56,13 @@ public class RestaurantListFragment extends Fragment {
 
 
     private ZomatoApi zomatoApi;
+    private Realm realm;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         zomatoApi = NetworkInterfaceProvider.buildZomatoApi();
+        realm = Realm.getDefaultInstance();
     }
 
     @Nullable
@@ -122,11 +126,17 @@ public class RestaurantListFragment extends Fragment {
     }
 
     private void cacheRestaurants(List<RestaurantModel> restaurants) {
-        //TODO
+        realm.beginTransaction();
+        realm.copyToRealm(restaurants);
+        realm.commitTransaction();
     }
 
     private List<RestaurantModel> fetchFromCache(){
-        return null;//TODO
+        RealmResults<RestaurantModel> queryResults = realm.where(RestaurantModel.class).findAll();
+        if(queryResults.size() == 0){
+            return null;
+        }
+        return realm.copyFromRealm(queryResults);
     }
 
     /**Note: this will only confirm the device is connected to a network, not whether there is access to the internet

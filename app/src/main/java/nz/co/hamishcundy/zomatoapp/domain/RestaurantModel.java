@@ -1,16 +1,19 @@
 package nz.co.hamishcundy.zomatoapp.domain;
 
+import io.realm.RealmObject;
 import nz.co.hamishcundy.zomatoapp.network.model.Restaurant;
 
-/**Immutable domain object to represent a restaurant (easier for caching purposes)
+/**Domain object to represent a restaurant (easier for caching purposes)
  * Would use autovalue here but doesn't play nicely with Realm
  *
  */
-public class RestaurantModel {
+public class RestaurantModel extends RealmObject{
 
-    private final String name;
-    private final String address;
-    private final String imageUrl;
+    private String name;
+    private String address;
+    private String imageUrl;
+
+    public RestaurantModel(){}
 
     public RestaurantModel(Restaurant restaurant){
         this.name = restaurant.restaurantDetails.name;
@@ -28,6 +31,18 @@ public class RestaurantModel {
 
     public String getImageUrl() {
         return imageUrl;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
 

@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.realm.Realm;
 import nz.co.hamishcundy.zomatoapp.R;
 
 public class MainActivity extends AppCompatActivity {
@@ -33,7 +34,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Butterknife bind views
         ButterKnife.bind(this);
+
+        //Realm initialisation
+        Realm.init(this);
+
+        //Setup navigation
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         switchFragment(R.id.navigation_restaurants);
     }
