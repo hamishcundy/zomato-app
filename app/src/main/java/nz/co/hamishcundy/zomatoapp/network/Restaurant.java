@@ -7,6 +7,7 @@ public class Restaurant {
     @SerializedName("name")
     public String name;
 
+    @SerializedName("featured_image")
     public String featuredImage;
 
     @SerializedName("location")

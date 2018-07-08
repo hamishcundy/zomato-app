@@ -15,6 +15,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 import java.util.List;
 
@@ -172,7 +173,12 @@ public class RestaurantListFragment extends Fragment {
             nameLabel.setText(restaurant.name);
             addressLabel.setText(restaurant.location.address);
 
-            Glide.with(RestaurantListFragment.this).load(restaurant.featuredImage).into(photoImageview);
+            RequestOptions options = new RequestOptions()
+                    .centerCrop();
+
+            Glide.with(RestaurantListFragment.this).load(restaurant.featuredImage)
+                    .apply(options)
+                    .into(photoImageview);
 
 
         }
